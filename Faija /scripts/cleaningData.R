@@ -16,8 +16,15 @@ datasm <- select(data, Region, Year, `Country name`,
  
 datasm
 
+rename(data, Country = 'Country name')
+
+
+
 filter(datasm, is.na("Paid off all credit card balances in full by their due date (% who used a credit card, age 15+)"))
 filter(datasm, is.na("Used a debit or credit card (% age 15+)"))
+
+noNAs <- na.omit(data)
+noNAs
 
 library(ggplot2)
 
