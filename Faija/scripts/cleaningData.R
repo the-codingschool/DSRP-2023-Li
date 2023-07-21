@@ -22,14 +22,30 @@ rename(datasm, Used_debit_or_creditcard =  'Used a debit or credit card (% age 1
 rename(datasm, made_a_deposit = 'Made a deposit (% with a financial institution account, age 15+)')
 
 
-
 library(ggplot2)
 
 ggplot(data = datasm, aes( x = Country , y= Owns_debit_or_credit_card)) +
   geom_bar(stat = "summary",
            fun = "mean") 
-
-
 labs( x = Country, y= Owns Debit or Credit card , 
       title = Percentage of countries with debit or credit cards)
+
+## new data
+
+microworld <- readRDS("~/Documents/ResearchProject-Li/data/micro_world_139countries.RDS")
+View(microworld)
+
+smallworld <- select(microworld, economy, account, account_mob, fin2, fin4, fin7, fin8, fin8b,
+                     fin9, fin9a, fin10,fin10a, fin10b)
+
+smallworld
+
+filter(data = microworld, economy == "United States" )
+
+NewSmallWorld <- na.omit(smallworld)
+NewSmallWorld
+
+ggplot(data = NewSmallWorld, aes( x = economy , y= fin7)) +
+  geom_bar(stat = "summary",
+           fun = "mean") 
 
