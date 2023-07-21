@@ -5,7 +5,7 @@ library("dplyr")
 db_large <- read.csv("../data/DatabankWide Dataset - Data.csv")
 
 # filter needed columns 
-# db_small <- select(db_large, )
+db_small <- filter(db_large, Income.group=="Low income" | Income.group=="Middle income" | Income.group=="High")
 
 # group by income level 
 # dependent: numerical/financial literacy 
