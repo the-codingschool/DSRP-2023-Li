@@ -38,14 +38,35 @@ View(microworld)
 smallworld <- select(microworld, economy, account, account_mob, fin2, fin4, fin7, fin8, fin8b,
                      fin9, fin9a, fin10,fin10a, fin10b)
 
-smallworld
-
-filter(data = microworld, economy == "United States" )
-
 NewSmallWorld <- na.omit(smallworld)
-NewSmallWorld
 
-ggplot(data = NewSmallWorld, aes( x = economy , y= fin7)) +
+rename(smallworld, country = "economy") 
+rename(smallworld, has_credit_card = "fin7") 
+rename(smallworld, has_debitcard = "fin2") 
+rename(smallworld, used_debitcard = "fin4")
+rename(smallworld, paid_creditbalace_infull = "fin8b")
+rename(smallworld, made_deposit = "fin9") 
+rename(smallworld, makes_deposit_2pluspermonth = "fin9a") 
+rename(smallworld, withdrew = "fin10") 
+rename(smallworld, withdrew_2plusamonth = "fin10a") 
+rename(smallworld, storemoneyinaccount = "fin10b") 
+
+
+smallworldUS <- filter(smallworld, smallworld$economy  == "United States") 
+
+
+library(ggplot2)
+
+ggplot(data = smallworldUS, aes( x = economy , y= fin7)) +
   geom_bar(stat = "summary",
            fun = "mean") 
 
+ ggplot(data = microworld, aes(x = pop_adult)) +
+   geom_boxplot()
+
+ ggplot(data = microworld, aes(x = economy, y = pop_adult)) +
+   geom_violin()
+ 
+ 
+ 
+ 
