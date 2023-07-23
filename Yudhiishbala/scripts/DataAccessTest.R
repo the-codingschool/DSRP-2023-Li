@@ -22,22 +22,52 @@ df$regionwb[df$regionwb == "Sub-Saharan Africa (excluding high income)"] <- "Sub
 library(ggplot2)
 library(stringr)
 AccountOwner <- factor(df$account)
-ggplot(data = df, aes(x = regionwb, fill = AccountOwner, label = after_stat(count))) +
-  scale_fill_manual(name = "Owns Account?",labels = c("No","Yes"),values = c("#ab2b2b","#2da661")) +
+ggplot(data = df, aes(x = regionwb,
+                      fill = AccountOwner,
+                      label = after_stat(count))) +
+  scale_fill_manual(name = "Owns Account?",
+                    labels = c("No","Yes"),
+                    values = c("#ab2b2b","#2da661")) +
   geom_bar(position = "dodge") +
-  theme(axis.text.x = element_text(vjust = 0.9, size = 7,color="black")) +
-  labs(x = "Region", y = "Number of People",title = "Number of People per Region with Money Accounts") +
+  theme(plot.title = element_text(size = 26),
+        axis.title = element_text(size = 15),
+        axis.text = element_text(vjust = 0.9, size = 10, color="black"),
+        legend.title = element_text(size = 15),
+        legend.text = element_text(size = 15)) +
+  labs(x = "Region",
+       y = "Number of People",
+       title = "Number of People per Region with Money Accounts") +
   scale_x_discrete(labels = function(x)stringr::str_wrap(x, width = 15)) +
-  geom_text(position = position_dodge2(width = 1, preserve = "single"),stat = "count", vjust = -0.5, hjust = 0.5)
+  geom_text(position = position_dodge2(width = 1, preserve = "single"),
+            stat = "count",
+            size = 4,
+            vjust = -0.5,
+            hjust = 0.5)
 
 dataf <- filter(df, account == 0)
 dataf <- filter(dataf, !is.na(urbanicity_f2f))
 ruralOrNot <- factor(dataf$urbanicity_f2f)
-ggplot(data = dataf, aes(x = regionwb, fill = ruralOrNot, label = after_stat(count))) +
-  scale_fill_manual(name = "Location",labels = c("Rural","Urban"),values = c("#0c6128","#778f7f")) +
+ggplot(data = dataf, aes(x = regionwb,
+                         fill = ruralOrNot,
+                         label = after_stat(count))) +
+  scale_fill_manual(name = "Location",
+                    labels = c("Rural","Urban"),
+                    values = c("#0c6128","#778f7f")) +
   geom_bar(position = "dodge") +
-  theme(axis.text.x = element_text(vjust = 0.9, size = 7,color="black")) +
-  labs(x = "Region", y = "Number of People",title = "Rural vs Urban Non-Account Holders",subtitle = "Excludes 6905 NA Responses") +
+  theme(plot.title = element_text(size = 26),
+        axis.title = element_text(size = 15),
+        axis.text = element_text(vjust = 0.9, size = 10, color="black"),
+        legend.title = element_text(size = 15),
+        legend.text = element_text(size = 15),
+        plot.subtitle = element_text(size = 14)) +
+  labs(x = "Region",
+       y = "Number of People",
+       title = "Rural vs Urban Non-Account Holders",
+       subtitle = "Excludes 6905 NA Responses") +
   scale_x_discrete(labels = function(x)stringr::str_wrap(x, width = 15)) +
-  theme(plot.subtitle = element_text(size = 7)) +
-  geom_text(position = position_dodge2(width = 1, preserve = "single"),stat = "count", vjust = -0.5, hjust = 0.5)
+  geom_text(position = position_dodge2(width = 1, preserve = "single"),
+            stat = "count",
+            size = 4,
+            vjust = -0.5,
+            hjust = 0.5)
+
