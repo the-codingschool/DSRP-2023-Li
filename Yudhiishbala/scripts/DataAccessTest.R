@@ -21,6 +21,7 @@ df$regionwb[df$regionwb == "Sub-Saharan Africa (excluding high income)"] <- "Sub
 
 library(ggplot2)
 library(stringr)
+library(ggthemes)
 AccountOwner <- factor(df$account)
 ggplot(data = df, aes(x = regionwb,
                       fill = AccountOwner,
@@ -29,6 +30,7 @@ ggplot(data = df, aes(x = regionwb,
                     labels = c("No","Yes"),
                     values = c("#ab2b2b","#2da661")) +
   geom_bar(position = "dodge") +
+  theme_wsj()+
   theme(plot.title = element_text(size = 26),
         axis.title = element_text(size = 15),
         axis.text = element_text(vjust = 0.9, size = 10, color="black"),
@@ -52,8 +54,9 @@ ggplot(data = dataf, aes(x = regionwb,
                          label = after_stat(count))) +
   scale_fill_manual(name = "Location",
                     labels = c("Rural","Urban"),
-                    values = c("#0c6128","#778f7f")) +
+                    values = c("#118f37","#3e4a82")) +
   geom_bar(position = "dodge") +
+  theme_wsj()+
   theme(plot.title = element_text(size = 26),
         axis.title = element_text(size = 15),
         axis.text = element_text(vjust = 0.9, size = 10, color="black"),
