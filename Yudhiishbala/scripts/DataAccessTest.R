@@ -5,10 +5,10 @@ dataframe <- read.csv("data/DatabankWide Dataset - Data.csv")
 micro139 <- readRDS("data/micro_world_139countries.RDS")
 #View(micro139)
 
-df <- filter(micro139, educ != 4, educ != 5)
+#df <- filter(micro139, educ != 4, educ != 5)
 #View(df)
 
-df <- select(df, -economycode)
+df <- select(micro139, -economycode)
 df <- df %>% select("economy":"account_mob","fin10_1a":"fin10_1e","fin11_1","fin11a":"fin11h","fin13_1a":"fin13_1f")
 df$regionwb[df$regionwb == ""] <- "Taiwan"
 df$regionwb[df$regionwb == "East Asia & Pacific (excluding high income)"] <- "East Asia & Pacific"
