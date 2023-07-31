@@ -73,14 +73,8 @@ test_reg_data <- testing(data_reg_split)
 linreg_fit <- linear_reg() |> 
   set_engine("lm") |> 
   set_mode("regression") |> 
-  fit(Saved_prop ~ Average_education, data=train_reg_data) 
+  fit(Owns_account_prop ~ Average_education, data=train_reg_data) 
 summary(linreg_fit$fit) 
-
-
-
-
-
-
 
 saved_pred <- test_reg_data 
 saved_pred$linReg <- predict(linreg_fit, test_reg_data)$.pred 
