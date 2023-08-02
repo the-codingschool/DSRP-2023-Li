@@ -10,7 +10,7 @@ micro139 <- readRDS("data/micro_world_139countries.RDS")
 
 df <- select(micro139, -economycode)
 df <- df %>% select("economy":"account_mob","fin10_1a":"fin10_1e","fin11_1","fin11a":"fin11h","fin13_1a":"fin13_1f")
-df$regionwb[df$regionwb == ""] <- "Taiwan"
+df$regionwb[df$regionwb == ""] <- "High Income"
 df$regionwb[df$regionwb == "East Asia & Pacific (excluding high income)"] <- "East Asia & Pacific"
 df$regionwb[df$regionwb == "Europe & Central Asia (excluding high income)"] <- "Europe & Central Asia"
 df$regionwb[df$regionwb == "High income"] <- "High Income"
@@ -73,4 +73,3 @@ ggplot(data = dataf, aes(x = regionwb,
             size = 4,
             vjust = -0.5,
             hjust = 0.5)
-
