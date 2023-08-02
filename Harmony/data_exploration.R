@@ -84,26 +84,6 @@ yardstick::rmse(saved_pred, truth=Saved_prop, estimate=linReg)
 
 
 
-# comp educ & saved_prop -> regression 
-
-
-
-country_avg <- mutate(country_avg, 
-                         Owns_account_proportion=count(db$account_fin==1), 
-                         .by=economy)
-
-
-
-
-
-  
-head(country_avg) 
-
-
-
-
-
-
 
   
   country_total <- count(country_temp, economy) 
@@ -123,18 +103,11 @@ head(country_avg)
   country_avg <- rbind(country_avg, data.frame(c(country), c(country_count$Income.group), c(educ_avg), c(account_fin_prop), c(saved_prop)))
   
   
-  # add_row 
-  
-  if x == 59 { 
-      break 
-    }
-  x += 1 
-  
-}
 
 
 
-# db_grouped <- group_by(db, economy)
+
+
 
 
 # plot income group distribution 
