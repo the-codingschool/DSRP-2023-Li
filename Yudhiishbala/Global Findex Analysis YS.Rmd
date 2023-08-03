@@ -1,0 +1,322 @@
+# **Lack of Access to Money-Management Accounts in 2021**
+
+### **By Yudhiishbala Senthilkumar**
+
+## **Abstract**
+
+\
+
+## **Introduction**
+
+Money management accounts are revolutionary ideas that followed closely after the advent of the internet in the 80s and 90s. Though it took humans a significant amount of time to secure this method of money management and take advantage of the changing technology such as phones, smart devices, apps, NFC, and so much more, money management accounts have become a very common method of saving and using money around the world.
+
+In 2021, checking accounts and savings accounts were common ways to store and manage finances, along with mobile money services such as M-Pesa, Airtel Money, and EcoCash in Africa (6) and many others globally. During that year, there were 7.89 billion individuals that made up the entire world population (5). However, according to the Global Data Consortium, only about 6.1 billion people out of 7.8 billion were fully banked in 2020 (2). In other words, only about 80% of the world's population utilized finance management technologies to manage their money.
+
+While this is a relatively high number, the remaining 20% still accounts for millions of people without access to or without knowledge of these widespread technologies. The purpose of these technologies was mainly to allow individuals to have access to easy money management that allows for convenience anywhere in the world they are. Hence, it is important to figure out what exactly prevents these people from having that access or if there are any personal reasons they may have for avoiding the technology.
+
+## Premise
+
+This research is intended to provide an answer to following question: In 2021, what factors prevented individuals without accounts, whether banking or mobile money, from utilizing these technologies as they became much more prevalent throughout the world? Given that the data is large, there most likely will not be a singular reason for the lack of access to an account, but rather a culmination of reasons might be the case. To amend this situation, it may be necessary to look into each factor individually to provide a greater amount of financial access.
+
+## **Method**
+
+The technology used for this research was the R programming language and the RStudio IDE. Git and a public GitHub repository were used for revision control. From the overall World Bank website, the public Global Findex 2021 microdata was downloaded and loaded into GitHub as an RStudio-compatible file. The data was pulled and uploaded to RStudio to be analyzed using multiple built-in functions for hypothesis testing, and the ggplot2 library was used to portray the data analyses in easy-to-read plots.
+
+## **Data**
+
+The data set used in this research is the Global Findex Database 2021, created by the World Bank. It encompasses individual responses from about 143,887 individuals from 139 different countries. The data is grouped by seven regions: South Asia, Europe & Central Asia, Middle East & North Africa, Latin American & Caribbean, High Income, Sub-Saharan Africa, and East Asia & Pacific. These regions refer to specific regions worldwide that can be identified on a map. However, high-income economies are spread worldwide and can refer to a country on any of the six continents. This region refers to many high-GDP countries in Europe and Eastern Europe, the USA, the UK, Uruguay, Singapore, Canada, Australia, China, Taiwan, and high-GDP countries in the Middle East. This data set provides tens of thousands of responses from a questionnaire sent out by the World Bank Global Findex team. Each of the 143,887 responses was categorized according to the specified column values in the Findex's Microdata Documentation. All of the identifiers, such as region, gender, age, highest education, and income were explained, along with many particular questions that asked about an individual's general finances. The questions ranged from financial account ownership to saving up for the future to yes or no questions about financial sentiments that the respondent may have had. This report focuses specifically on the identifiers and the fin11 and fin13_1 columns regarding reasons for lacking financial account ownership.
+
+```{r}
+library(dplyr)
+micro139 <- readRDS("data/micro_world_139countries.RDS")
+
+micro139 <- readRDS("data/micro_world_139countries.RDS")
+micro139$regionwb[micro139$regionwb == ""] <- "High income"
+micro139$regionwb[micro139$regionwb == "East Asia & Pacific (excluding high income)"] <- "East Asia & Pacific"
+micro139$regionwb[micro139$regionwb == "Europe & Central Asia (excluding high income)"] <- "Europe & Central Asia"
+micro139$regionwb[micro139$regionwb == "High income"] <- "High Income"
+micro139$regionwb[micro139$regionwb == "Latin America & Caribbean (excluding high income)"] <- "Latin America & Caribbean"
+micro139$regionwb[micro139$regionwb == "Middle East & North Africa (excluding high income)"] <- "Middle East & North Africa"
+micro139$regionwb[micro139$regionwb == "Sub-Saharan Africa (excluding high income)"] <- "Sub-Saharan Africa"
+
+micro139$economy[micro139$economy == "C\xf4te d'Ivoire"] <- "Ivory Coast"
+micro139$economy[micro139$economy == "Congo, Dem. Rep."] <- "Democratic Republic of the Congo"
+micro139$economy[micro139$economy == "Congo, Rep."] <- "Republic of Congo"
+micro139$economy[micro139$economy == "Czechia"] <- "Czech Republic"
+micro139$economy[micro139$economy == "Egypt, Arab Rep."] <- "Egypt"
+#micro139$economy[micro139f$economy == "Eswatini"] <- ""
+micro139$economy[micro139$economy == "Gambia, The"] <- "Gambia"
+micro139$economy[micro139$economy == "Hong Kong SAR, China"] <- "China"
+micro139$economy[micro139$economy == "Iran, Islamic Rep."] <- "Iran"
+micro139$economy[micro139$economy == "Korea, Rep."] <- "South Korea"
+micro139$economy[micro139$economy == "Kyrgyz Republic"] <- "Kyrgyzstan"
+micro139$economy[micro139$economy == "Lao PDR"] <- "Laos"
+micro139$economy[micro139$economy == "Russian Federation"] <- "Russia"
+micro139$economy[micro139$economy == "Slovak Republic"] <- "Slovakia"
+micro139$economy[micro139$economy == "T\xfcrkiye"] <- "Turkey"
+micro139$economy[micro139$economy == "Taiwan, China"] <- "Taiwan"
+micro139$economy[micro139$economy == "United Kingdom"] <- "UK"
+micro139$economy[micro139$economy == "United States"] <- "USA"
+micro139$economy[micro139$economy == "Venezuela, RB"] <- "Venezuela"
+#micro139$economy[micro139$economy == "West Bank and Gaza"] <- ""
+micro139$economy[micro139$economy == "Yemen, Rep."] <- "Yemen"
+
+df <- select(micro139, -economycode)
+df <- df %>% select("economy":"account_mob","internetaccess","fin11a":"fin11h", "fin13_1a":"fin13_1f","mobileowner")
+
+library(ggplot2)
+library(stringr)
+library(ggthemes)
+AccountOwner <- factor(df$account_fin)
+ggplot(data = df, aes(x = regionwb,
+                      fill = AccountOwner,
+                      label = after_stat(count))) +
+  scale_fill_manual(name = "Owns Account?",
+                    labels = c("No","Yes"),
+                    values = c("#ab2b2b","#2da661")) +
+  geom_bar(position = "dodge") +
+  theme_wsj()+
+  theme(plot.title = element_text(size = 26),
+        axis.title = element_text(size = 15),
+        axis.text = element_text(vjust = 0.9, size = 7, color="black"),
+        legend.title = element_text(size = 15),
+        legend.text = element_text(size = 15)) +
+  labs(x = "Region",
+       y = "Number of People",
+       title = "Number of People per Region with Money Accounts") +
+  scale_x_discrete(labels = function(x)stringr::str_wrap(x, width = 10)) +
+  geom_text(position = position_dodge2(width = 1, preserve = "single"),
+            stat = "count",
+            size = 3,
+            vjust = -0.5,
+            hjust = 0.5)
+
+
+```
+
+Figure 1: Account Ownership among the 7 Global Findex Regions
+
+For a preliminary understanding of the data, the number of individuals without accounts was found since these are the individuals that this report is trying to analyze. As shown in the above plot, many individuals have access to an account, whether this may be an account with a financial institution or a mobile money account. The graph is visually on par with the idea that nearly 80% of individuals have access to these accounts, and given that high-income economies tend to deal with many modern technologies and significantly higher average household income, it makes sense that these economies have a greater amount of financial management accounts.
+
+To test out this report's null hypothesis of no evidence that a singular factor is a significant cause of not having an account, multiple Chi-Square tests were conducted based on the corresponding columns in the data set.
+
+## **Results**
+
+### *Global Financial Accounts Understanding*
+
+For the initial tests, the columns involved were the account_fin column which determines whether or not a respondent had an account with a financial institution. The remaining columns involved were the fin11a to fin11h columns, each respectively citing the following reasons for not having an account with a financial institution: the financial institutions were too far away, the financial services were too expensive, the respondents lacked the necessary documentation to open an account, the respondent lacks trust in financial institutions in general, the respondent cannot open an account due to religious reasons, the respondent lacks the money to use an account, the respondent has a family member who already has an account, or the respondent has no need for financial services.
+
+These reasons and their values for which respondents selected "1" or true are shown in Figure 2.
+
+```{r}
+library(dplyr)
+micro139 <- readRDS("data/micro_world_139countries.RDS")
+
+micro139 <- readRDS("data/micro_world_139countries.RDS")
+micro139$regionwb[micro139$regionwb == ""] <- "High income"
+micro139$regionwb[micro139$regionwb == "East Asia & Pacific (excluding high income)"] <- "East Asia & Pacific"
+micro139$regionwb[micro139$regionwb == "Europe & Central Asia (excluding high income)"] <- "Europe & Central Asia"
+micro139$regionwb[micro139$regionwb == "High income"] <- "High Income"
+micro139$regionwb[micro139$regionwb == "Latin America & Caribbean (excluding high income)"] <- "Latin America & Caribbean"
+micro139$regionwb[micro139$regionwb == "Middle East & North Africa (excluding high income)"] <- "Middle East & North Africa"
+micro139$regionwb[micro139$regionwb == "Sub-Saharan Africa (excluding high income)"] <- "Sub-Saharan Africa"
+
+micro139$economy[micro139$economy == "C\xf4te d'Ivoire"] <- "Ivory Coast"
+micro139$economy[micro139$economy == "Congo, Dem. Rep."] <- "Democratic Republic of the Congo"
+micro139$economy[micro139$economy == "Congo, Rep."] <- "Republic of Congo"
+micro139$economy[micro139$economy == "Czechia"] <- "Czech Republic"
+micro139$economy[micro139$economy == "Egypt, Arab Rep."] <- "Egypt"
+#micro139$economy[micro139f$economy == "Eswatini"] <- ""
+micro139$economy[micro139$economy == "Gambia, The"] <- "Gambia"
+micro139$economy[micro139$economy == "Hong Kong SAR, China"] <- "China"
+micro139$economy[micro139$economy == "Iran, Islamic Rep."] <- "Iran"
+micro139$economy[micro139$economy == "Korea, Rep."] <- "South Korea"
+micro139$economy[micro139$economy == "Kyrgyz Republic"] <- "Kyrgyzstan"
+micro139$economy[micro139$economy == "Lao PDR"] <- "Laos"
+micro139$economy[micro139$economy == "Russian Federation"] <- "Russia"
+micro139$economy[micro139$economy == "Slovak Republic"] <- "Slovakia"
+micro139$economy[micro139$economy == "T\xfcrkiye"] <- "Turkey"
+micro139$economy[micro139$economy == "Taiwan, China"] <- "Taiwan"
+micro139$economy[micro139$economy == "United Kingdom"] <- "UK"
+micro139$economy[micro139$economy == "United States"] <- "USA"
+micro139$economy[micro139$economy == "Venezuela, RB"] <- "Venezuela"
+#micro139$economy[micro139$economy == "West Bank and Gaza"] <- ""
+micro139$economy[micro139$economy == "Yemen, Rep."] <- "Yemen"
+
+df <- select(micro139, -economycode)
+df <- df %>% select("economy":"account_mob","internetaccess","fin11a":"fin11h", "fin13_1a":"fin13_1f","mobileowner")
+
+find11a <- (count(df, account_fin == 0, fin11a == 1))[TRUE][TRUE]$n[5] * 1
+find11b <- (count(df, account_fin == 0, fin11b == 1))[TRUE][TRUE]$n[5] * 1
+find11c <- (count(df, account_fin == 0, fin11c == 1))[TRUE][TRUE]$n[5] * 1
+find11d <- (count(df, account_fin == 0, fin11d == 1))[TRUE][TRUE]$n[5] * 1
+find11e <- (count(df, account_fin == 0, fin11e == 1))[TRUE][TRUE]$n[5] * 1
+find11f <- (count(df, account_fin == 0, fin11f == 1))[TRUE][TRUE]$n[5] * 1
+find11g <- (count(df, account_fin == 0, fin11g == 1))[TRUE][TRUE]$n[5] * 1
+find11h <- (count(df, account_fin == 0, fin11h == 1))[TRUE][TRUE]$n[5] * 1
+
+dataf <- data.frame(column = c("a. Too Far","b. Too Expensive","c. Lack Documents","d. Lack Trust",
+                              "e. Religious Reasons","f. Lack Money","g. Family Member Already Has One",
+                              "h. No Need For Financial Services"),
+                   count = c(find11a,find11b,find11c,find11d,find11e,find11f,find11g,find11h))
+
+library(ggplot2)
+ggplot(data = dataf,aes(x = column, y = count, fill = column))+
+  geom_bar(stat="identity")+
+  ggthemes::theme_wsj()+
+  scale_fill_manual(values = c("#8a3b3b", "#9e4d16", "#b0aa56", "#4c8c46", "#468c7e", "#46568c", "#69468c", "#942987"))+
+  theme(axis.text = element_text(size = 10, color="black"),
+        plot.title = element_text(size = 15),
+        legend.position = "none") +
+  labs(x = "Reason",
+       y = "Number of People",
+       title = "Reasons For Lacking a Financial Account")+ 
+  scale_x_discrete(labels = function(x)stringr::str_wrap(x, width = 10))
+```
+
+Figure 2: Reasons for No Financial Institution Account
+
+As seen here, fin11f has the highest number of individuals who don't have a financial account who responded true, meaning that just over 35,000 individuals responded that they lack enough money to benefit from having a financial account.
+
+Looking towards the Chi-Square results, from fin11a to fin11h, the p-values were 0.412. 4.66e-13, 4.7e-5, 1.54e-18, 9.3e-12, 1.68e-27, 2.09e-63, 2.87e-17. The lowest p-value is held by fin11g, suggesting we can reject the null hypothesis and that it is more likely that people within the 20% who don't have an account have access to a family member who has an account. The column fin11f, with over 35000 positive responses, has a p-value that is second to that of fin11g, suggesting this is also a major reason many respondents faced a lack of a financial account. Another interesting p-value is the high p-value for fin11a. This suggests that, in this case, we accept the null hypothesis and that financial institutions being too far from the respondent is not a major issue. It shows that financial institutions are widespread and are definitely accessible by those that don't have an account, but the other reasons are what stops them from opening an account.
+
+### *Mobile Money Accounts (Sub-Saharan Africa)*
+
+For the second set of tests, the columns involved were the account_mob column which determines whether or not a respondent had a mobile money account. After filtering, nearly 61,181 individuals did not have out of the initial 143,887 and a further 34,261 individuals didn't have an account with a financial institution either.
+
+A possible limitation with the mobile money aspect of the data set is that the remaining columns involved, the fin13_1a to fin13_1f columns, were only asked of those without a mobile money account in the Sub-Saharan Africa region, narrowing down the results to 22,896 people. Accounting for empty responses in the fin13_1 columns, only 19,666 people have provided a reason as to why they do not have a mobile money account localized to the Sub-Saharan African countries.
+
+A likely reason why only Sub-Saharan countries were chosen for mobile money accounts is that though the data set only has a few thousand responses from these countries and an overall 36,000 responses from the entire region, this kind of account is far more popular to use in this region than anywhere in the world. By the start of 2021, the Sub-Saharan Africa region contained more that two-thirds of the global mobile money users around the word, accounting for nearly half a trillion US dollars in transactions (7). And with nearly 1.18 billion people according to the World Bank (8), the number of mobile money accounts ranges in the millions, meaning the Sub-Saharan Africa region most likely sets the tone and trends that these technologies take fo the rest of the world.
+
+For the fin13_la to the fin13f, each column respectively cites the following reasons for not having an mobile money account: the mobile money agents were too far away, the mobile money services were too expensive, the respondents lacked the necessary documentation to open an account, the respondent lacks the money to use an account, the respondent uses someone's services to handle their finances, or the respondent doesn't have a mobile phone to use a mobile money account.\
+
+These reasons and their values for which respondents selected "1" or true are shown in Figure 3.
+
+```{r}
+library(dplyr)
+micro139 <- readRDS("data/micro_world_139countries.RDS")
+micro139$regionwb[micro139$regionwb == ""] <- "High income"
+micro139$economy[micro139$economy == "T\xfcrkiye"] <- "Turkey"
+micro139$economy[micro139$economy == "C\xf4te d'Ivoire"] <- "Cote d'Ivoire"
+
+df <- select(micro139, -economycode)
+
+df$regionwb[df$regionwb == "East Asia & Pacific (excluding high income)"] <- "East Asia & Pacific"
+df$regionwb[df$regionwb == "Europe & Central Asia (excluding high income)"] <- "Europe & Central Asia"
+df$regionwb[df$regionwb == "High income"] <- "High Income"
+df$regionwb[df$regionwb == "Latin America & Caribbean (excluding high income)"] <- "Latin America & Caribbean"
+df$regionwb[df$regionwb == "Middle East & North Africa (excluding high income)"] <- "Middle East & North Africa"
+df$regionwb[df$regionwb == "Sub-Saharan Africa (excluding high income)"] <- "Sub-Saharan Africa"
+df <- df %>% select("economy":"account_mob","internetaccess","fin11a":"fin11h", "fin13_1a":"fin13_1f","mobileowner")
+df <- filter(df, regionwb == "Sub-Saharan Africa")
+
+find13a <- (count(df, account_mob == 0, fin13_1a == 1))[TRUE][TRUE]$n[5] * 1
+find13b <- (count(df, account_mob == 0, fin13_1b == 1))[TRUE][TRUE]$n[5] * 1
+find13c <- (count(df, account_mob== 0, fin13_1c == 1))[TRUE][TRUE]$n[5] * 1
+find13d <- (count(df, account_mob == 0, fin13_1d == 1))[TRUE][TRUE]$n[5] * 1
+find13e <- (count(df, account_mob == 0, fin13_1e == 1))[TRUE][TRUE]$n[5] * 1
+find13f <- (count(df, account_mob == 0, fin13_1f == 1))[TRUE][TRUE]$n[5] * 1
+find13fb <- (count(df, account_mob == 0, fin13_1f == 1 & mobileowner != 1))[TRUE][TRUE]$n[5] * 1
+
+#Unmodified fin13_1f column
+datas <- data.frame(column = c("a. Too Far","b. Too Expensive","c. Lack Documents","d. Lack of Money","e. Use Agent","f. No Mobile Phone"),
+                   count = c(find13a,find13b,find13c,find13d,find13e,find13f))
+
+library(ggplot2)
+ggplot(data = datas,aes(x = column, y = count, fill = column))+
+  geom_bar(stat="identity")+
+  ggthemes::theme_wsj()+
+  scale_fill_manual(values = c("#4c8c46", "#468c7e", "#46568c", "#364075", "#69468c", "#942987"))+
+  theme(axis.text = element_text(size = 10, color="black"),
+        plot.title = element_text(size = 15),
+        legend.position = "none") +
+  labs(x = "Reason",
+       y = "Number of People",
+       title = "Reasons For Lacking a Mobile Money Account")+ 
+  scale_x_discrete(labels = function(x)stringr::str_wrap(x, width = 10))
+```
+
+Figure 3: Reasons for No Mobile Money Account
+
+As seen here, fin13_1d has the highest number of individuals who don't have a mobile money account who responded true, meaning that just under 13,000 individuals responded that they lack enough money to justify opening and using a mobile money account.
+
+Looking towards the Chi-Square results, from fin13_1a to fin13_1h, the p-values were 0.059, 0.0202, 0.744, 2.17e-8, 2.38e-30, and 2.4e-7. The lowest p-value is held by fin13_1e, suggesting we can reject the null hypothesis and that it is more likely that people use external services like an agent to handle their finances. The column fin13_1d, with over 13000 positive responses, has a p-value that is second to that of fin13_1e, suggesting that a lack of money is also a major reason many respondents faced a lack of a financial account. Another interesting p-value is the high p-value for fin13_1c or a lack of documents. This suggests that, in this case, we accept the null hypothesis and that a lack of documents is not a major issue for the respondents within Sub-Saharan Africa. Similarly, areas where mobile money accounts can be opened aren't very far away as evidenced by the 0.059 p-value, but it is still low enough to be considered as a rather small issue for those who cannot open mobile money accounts. Similarly, the p-value for fin13_1b is 0.02, which is lower than a 5% significance. This again points out that these accounts are too expensive to manage, but this isn't as much of an issue as those who lack money overall, use an agent to handle their finances, or lack a mobile phone.\
+
+```{r}
+library(dplyr)
+micro139 <- readRDS("data/micro_world_139countries.RDS")
+micro139$regionwb[micro139$regionwb == ""] <- "High income"
+micro139$economy[micro139$economy == "T\xfcrkiye"] <- "Turkey"
+micro139$economy[micro139$economy == "C\xf4te d'Ivoire"] <- "Cote d'Ivoire"
+
+df <- select(micro139, -economycode)
+
+df$regionwb[df$regionwb == "East Asia & Pacific (excluding high income)"] <- "East Asia & Pacific"
+df$regionwb[df$regionwb == "Europe & Central Asia (excluding high income)"] <- "Europe & Central Asia"
+df$regionwb[df$regionwb == "High income"] <- "High Income"
+df$regionwb[df$regionwb == "Latin America & Caribbean (excluding high income)"] <- "Latin America & Caribbean"
+df$regionwb[df$regionwb == "Middle East & North Africa (excluding high income)"] <- "Middle East & North Africa"
+df$regionwb[df$regionwb == "Sub-Saharan Africa (excluding high income)"] <- "Sub-Saharan Africa"
+df <- df %>% select("economy":"account_mob","internetaccess","fin11a":"fin11h", "fin13_1a":"fin13_1f","mobileowner")
+df <- filter(df, regionwb == "Sub-Saharan Africa")
+
+find13a <- (count(df, account_mob == 0, fin13_1a == 1))[TRUE][TRUE]$n[5] * 1
+find13b <- (count(df, account_mob == 0, fin13_1b == 1))[TRUE][TRUE]$n[5] * 1
+find13c <- (count(df, account_mob== 0, fin13_1c == 1))[TRUE][TRUE]$n[5] * 1
+find13d <- (count(df, account_mob == 0, fin13_1d == 1))[TRUE][TRUE]$n[5] * 1
+find13e <- (count(df, account_mob == 0, fin13_1e == 1))[TRUE][TRUE]$n[5] * 1
+find13fb <- (count(df, account_mob == 0, fin13_1f == 1 & mobileowner != 1))[TRUE][TRUE]$n[5] * 1
+
+#Filtered fin13_1f column
+datas <- data.frame(column = c("a. Too Far","b. Too Expensive","c. Lack Documents","d. Lack of Money","e. Use Agent","f. No Mobile Phone"),
+                   count = c(find13a,find13b,find13c,find13d,find13e,find13fb))
+
+library(ggplot2)
+ggplot(data = datas,aes(x = column, y = count, fill = column))+
+  geom_bar(stat="identity")+
+  ggthemes::theme_wsj()+
+  scale_fill_manual(values = c("#4c8c46", "#468c7e", "#46568c", "#364075", "#69468c", "#942987"))+
+  theme(axis.text = element_text(size = 10, color="black"),
+        plot.title = element_text(size = 15),
+        plot.subtitle = element_text(size = 10),
+        legend.position = "none") +
+  labs(x = "Reason",
+       y = "Number of People",
+       title = "Reasons For Lacking a Mobile Money Account",
+       subtitle = "Excludes about 2000 contradicting responses\n(Listed as Lacks Mobile Phone but has a mobile phone)")+ 
+  scale_x_discrete(labels = function(x)stringr::str_wrap(x, width = 10))
+
+```
+
+Figure 4: Reasons for No Mobile Money Account (Filtered Contradicting Responses)
+
+To further delve into the proportion of individuals that stated they do not own a mobile phone, the fin13_1f column and the mobile columns were visually analyzed for any significant items prior to a Chi-Square test. This yielded a rather odd result in the mobileowner column (1 means they own a phone, 2 to 4 means otherwise). For certain responses, thought respondents stated that they do have a mobile phone, but listed not having a mobile phone as one of the reasons for not owning a mobile money account. This is a contradictory response, so the Chi-Square test was redone while account for these contradictory responses. As seen in Figure 4, the f bar on the bar plot gets decreased by approximately 2,000 responses compared to Figure 3, and the p-value for the fin13_1f column decreases to zero. This suggests that not having a mobile is the most likely reason for not have many accounts, but given the background knowledge out Sub-Saharan Africa being huge users of mobile money accounts, and due to the high number of individuals who lack the money to hold an account, reason d is the most likely reason that must be looked into for an increase in mobile money accounts.
+
+### Conclusion
+
+Moving forward, whith this understanding of why people may lack these technologies, this data can be looked to for a preliminary understanding of the data. Companies and national governments can use this data to look for particular reasons and bolster them to allow greater access to financial and mobile money accounts. The data points out that a portion of those who have accounts only opened them to receive money from the government (1). The national governments can implement multiple programs and even budget subsidies for opening an account, connecting their populations to the overall national network or even a global network if they have such a necessity. Though not possible with the current data as it only apply to 2021, connecting this data set to past and future Findexes can allow for the identification of more trends based on financial accounts and mobile money accounts. Working with company data and adding a data based on user sentiments can allow for a clearer picture on what users may enjoy and how the government can capitalize on that to make their usage widespread.
+
+### Acknowledgements
+
+Thank you to Sarah Parker and The Coding School for providing the opportunity to learn and implement the methods used for this research paper. Thank you to Dr. Emma Li for providing the data set used in this research. Thank you again to Dr. Emma Li and Mira Bali (The Coding School Teaching Assistant) for providing consistent and helpful mentorship throughout this project and guiding me through my research.
+
+### Bibliography
+
+1.  <https://www.worldbank.org/en/publication/globalfindex/Data>
+
+2.  <https://www.globaldataconsortium.com/understanding-the-underbanked/#:~:text=About%206.1%20billion%20out,States%20participate%20in%20digital%20banking.>
+
+3.  <https://www.usg.edu/galileo/skills/unit07/internet07_02.phtml#:~:text=In%20response%20to%20this%2C%20other,to%20communicate%20with%20each%20other.>
+
+4.  <https://www.npr.org/2021/08/06/1025554426/a-look-back-at-the-very-first-website-ever-launched-30-years-later#:~:text=On%20August%206%2C%201991%2C%20the,about%20how%20to%20use%20it.>
+
+5.  <https://data.worldbank.org/indicator/SP.POP.TOTL>
+
+6.  <https://www.africa.com/the-growth-of-mobile-money-in-africa/#:~:text=M%2DPesa,money%2C%20go%20shopping%2C%20etc.>
+
+7.  <https://africanarguments.org/2022/02/the-rise-of-mobile-money-in-sub-saharan-africa-has-the-digital-technology-lived-up-to-its-promise/>
+
+8.  <https://data.worldbank.org/indicator/SP.POP.TOTL?locations=ZG>
+
+\
+\
