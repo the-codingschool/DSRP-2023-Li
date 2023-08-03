@@ -1,22 +1,39 @@
 library(dplyr)
-dataframe <- read.csv("data/DatabankWide Dataset - Data.csv")
-#View(dataframe)
+micro139 <- readRDS("data/micro_world_139countries.RDS")
 
 micro139 <- readRDS("data/micro_world_139countries.RDS")
-#View(micro139)
+micro139$regionwb[micro139$regionwb == ""] <- "High income"
+micro139$regionwb[micro139$regionwb == "East Asia & Pacific (excluding high income)"] <- "East Asia & Pacific"
+micro139$regionwb[micro139$regionwb == "Europe & Central Asia (excluding high income)"] <- "Europe & Central Asia"
+micro139$regionwb[micro139$regionwb == "High income"] <- "High Income"
+micro139$regionwb[micro139$regionwb == "Latin America & Caribbean (excluding high income)"] <- "Latin America & Caribbean"
+micro139$regionwb[micro139$regionwb == "Middle East & North Africa (excluding high income)"] <- "Middle East & North Africa"
+micro139$regionwb[micro139$regionwb == "Sub-Saharan Africa (excluding high income)"] <- "Sub-Saharan Africa"
 
-#df <- filter(micro139, educ != 4, educ != 5)
-#View(df)
+micro139$economy[micro139$economy == "C\xf4te d'Ivoire"] <- "Ivory Coast"
+micro139$economy[micro139$economy == "Congo, Dem. Rep."] <- "Democratic Republic of the Congo"
+micro139$economy[micro139$economy == "Congo, Rep."] <- "Republic of Congo"
+micro139$economy[micro139$economy == "Czechia"] <- "Czech Republic"
+micro139$economy[micro139$economy == "Egypt, Arab Rep."] <- "Egypt"
+#micro139$economy[micro139f$economy == "Eswatini"] <- ""
+micro139$economy[micro139$economy == "Gambia, The"] <- "Gambia"
+micro139$economy[micro139$economy == "Hong Kong SAR, China"] <- "China"
+micro139$economy[micro139$economy == "Iran, Islamic Rep."] <- "Iran"
+micro139$economy[micro139$economy == "Korea, Rep."] <- "South Korea"
+micro139$economy[micro139$economy == "Kyrgyz Republic"] <- "Kyrgyzstan"
+micro139$economy[micro139$economy == "Lao PDR"] <- "Laos"
+micro139$economy[micro139$economy == "Russian Federation"] <- "Russia"
+micro139$economy[micro139$economy == "Slovak Republic"] <- "Slovakia"
+micro139$economy[micro139$economy == "T\xfcrkiye"] <- "Turkey"
+micro139$economy[micro139$economy == "Taiwan, China"] <- "Taiwan"
+micro139$economy[micro139$economy == "United Kingdom"] <- "UK"
+micro139$economy[micro139$economy == "United States"] <- "USA"
+micro139$economy[micro139$economy == "Venezuela, RB"] <- "Venezuela"
+#micro139$economy[micro139$economy == "West Bank and Gaza"] <- ""
+micro139$economy[micro139$economy == "Yemen, Rep."] <- "Yemen"
 
 df <- select(micro139, -economycode)
-df <- df %>% select("economy":"account_mob","fin10_1a":"fin10_1e","fin11_1","fin11a":"fin11h","fin13_1a":"fin13_1f")
-df$regionwb[df$regionwb == ""] <- "High Income"
-df$regionwb[df$regionwb == "East Asia & Pacific (excluding high income)"] <- "East Asia & Pacific"
-df$regionwb[df$regionwb == "Europe & Central Asia (excluding high income)"] <- "Europe & Central Asia"
-df$regionwb[df$regionwb == "High income"] <- "High Income"
-df$regionwb[df$regionwb == "Latin America & Caribbean (excluding high income)"] <- "Latin America & Caribbean"
-df$regionwb[df$regionwb == "Middle East & North Africa (excluding high income)"] <- "Middle East & North Africa"
-df$regionwb[df$regionwb == "Sub-Saharan Africa (excluding high income)"] <- "Sub-Saharan Africa"
+df <- df %>% select("economy":"account_mob","internetaccess","fin11a":"fin11h", "fin13_1a":"fin13_1f","mobileowner")
 #View(df)
 
 library(ggplot2)
@@ -65,11 +82,11 @@ ggplot(data = dataf, aes(x = regionwb,
         plot.subtitle = element_text(size = 14)) +
   labs(x = "Region",
        y = "Number of People",
-       title = "Rural vs Urban Non-Account Holders",
-       subtitle = "Excludes 6905 NA Responses") +
+       title = "Rural vs Urban Non-Account Holders") +
   scale_x_discrete(labels = function(x)stringr::str_wrap(x, width = 15)) +
   geom_text(position = position_dodge2(width = 1, preserve = "single"),
             stat = "count",
             size = 4,
             vjust = -0.5,
             hjust = 0.5)
+
