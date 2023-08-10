@@ -1,0 +1,213 @@
+# Income and Education Level vs. Internet Access
+
+## Abstract
+
+#### Problem
+
+Internet access is so essential in today's world, and because of that I wanted to understand more about the people who don't have access. The research question I chose is if people's income and education level affect whether they have internet access? I was hoping to find if there is a strong correlation between these variables.
+
+#### Approach
+
+I used the Global Findex 2021 Data Set from World Bank. The data set inclued the ways in which adults around the world use financial services, from payments to savings and borrowing, and manage financial events. The data comes from nationally representative surveys of about 128,000 adults in 123 economies during the COVID-19 pandemic. The columns I used was internet access, education level (educ), and income level (inc_q). To analyze the data I used correlation plots, chi-square testing, and machine learning models.
+
+#### Results
+
+My main findings were that income and education level are correlated with internet access. Another thing I found is that as education level and income level go up someone is more likely to have internet access and is someone has a lower income and education level they are more likely not to have internet access.
+
+#### Conclusion
+
+It is clear that income and education level are correlated, but it is hard to know how they affect each other because of this I think it is necessary that their is more data/research on what is stopping people from accessing the internet. Then only can companies and governments find ways to make it more accessible to those who have barriers.
+
+## **Background**
+
+Internet access is so essential in today's world. It is somethings that is needed for certain things in life, but also being able to connect with people from all around the world. Due to the all the benefits of having internet access it only seems fair that everyone can have access to it. So because of this led me to want to answer this Research Question: Do people's income and education level affect whether they have internet access? I personally hypothesized before the analysis that someone's education and income level does affect whether internet access.
+
+Here is some information on the variables I will be using in the research.
+
+-   internetaccess = **Internet Access**
+
+    -   1 = has access, 2 = no access, 3 = they don\'t know, 4 = refused to answer
+
+-   educ = **Education level**
+
+    -   1 = completed primary school or less, 2 = completed secondary school , 3 = completed tertiary school or more
+
+-   inc_q = **Income quintile**
+
+    -   Respondents household income (1-5)
+
+## **Results**
+
+```{r setup}
+library(readr)
+library(ggplot2)
+library(dplyr)
+library(tidyr)
+library(janitor)
+library(reshape2)
+library(rsample)
+library(parsnip)
+library(ranger)
+library(corrplot)
+data <- readRDS("data/micro_world_139countries.RDS")
+View(data)
+summary(data)
+```
+
+#### Correlation Tile Plot
+
+```{r, echo=FLASE}
+data_plot <- select( data, educ, internetaccess, inc_q )
+
+data_plot <- na.omit(data_plot)
+
+data_plot_Cors <- data_plot |>
+  cor() |>
+  melt() |>
+  as.data.frame()
+
+ggplot(data_plot_Cors, aes(x = Var1, y = Var2, fill = value)) +
+  geom_tile() +
+  scale_fill_gradient2(low = "red", high = "blue", mid = "white",
+                       midpoint = 0)
+
+```
+
+This correlation tile plot shows the correlation between the three variables I was interested in comparing. Looking the graph we can see that education and internet access have a negative correlation and that would make sense since as education level goes up internet access number lowers. Since 1 in internet access means that the person does have access it would make sense why internet access and education level have a negative correlation. Income level and internet access also have a negative correlation, but it is weaker than education level and internet access.
+
+#### Correlation Graph of Residuals for a Chi-Square Test of Internet access vs. Education level 
+
+```{r, echo=FLASE}
+noNAs <- filter(data, !is.na(inc_q), !is.na(educ), !is.na(internetaccess))
+
+
+chisq.test(noNAs$internetaccess, noNAs$educ, simulate.p.value = TRUE)
+
+chisq_educ <- chisq.test(noNAs$internetaccess, noNAs$educ)
+corrplot(chisq_educ$residuals, is.cor = F)
+
+
+
+```
+
+This correlation graph of the residuals reveals where the predicted outcomes, when everything is distributed equally, are different from the actual values. In this graph we see that when education level is at 3, the highest in the data set, respondents have internet access way more than predicted and don't have internet access at way lower rate than predicted. When someone has an education level of 1 it is overwhelmingly more likely than predicted that they don't have internet access and more less likely than predicted that they internet access. All in all, this graph shows how a education level increases the chances of someone having internet access, while a lower education level does the opposite.
+
+#### Correlation Graph of Residuals for a Chi-Square Test of Internet access vs. Income level 
+
+```{r, echo=FLASE}
+chisq.test(noNAs$internetaccess, noNAs$inc_q)
+
+chisq_inc <- chisq.test(noNAs$internetaccess, noNAs$inc_q)
+corrplot(chisq_inc$residuals, is.cor = F)
+```
+
+In this graph we see that when income level is at 5, the highest in the data set, respondents have internet access way more than predicted and don't have internet access at way lower rate than predicted. When someone has an income level of 1 it is overwhelmingly more likely than predicted that they don't have internet access and more less likely than predicted that they internet access. All in all, this graph shows how a higher income level increases the chances of someone having internet access, while a lower income level does the opposite.
+
+#### Random Forest ML Model Using Income and Education level to Predict Whether Someone Has Internet Access
+
+```{r, echo=FLASE}
+#1st ML Model Education, Income level, and Internet Access
+
+noNAs_3 <- select(noNAs, internetaccess, educ, inc_q)
+
+noNAs_factor <- mutate(noNAs_3, educ = as.factor(educ),
+                      inc_q = as.factor(inc_q),
+                      internetaccess = as.factor(internetaccess))
+
+class_split <- initial_split(noNAs_factor, prop = 0.90)
+
+class_train <- training(class_split)
+class_test <- testing(class_split)
+
+
+forest_class_fit <- rand_forest() |>
+  set_engine("ranger") |>
+  set_mode("classification") |>
+  fit(internetaccess ~ ., data = class_train)
+
+class_results <- class_test
+
+class_results$forest_pred <- predict(forest_class_fit, class_test)$.pred_class
+
+f1_score <- f1(class_results$internetaccess, class_results$forest_pred)
+
+f1_score
+```
+
+This model uses both education and income level to predict whether someone has internet access. The accuracy of this model was calculated through the f1 score which is 0.66667. This is an okay score, so the model is not too bad, but not great.
+
+#### Random Forest ML Model Using only Education level to Predict Whether Someone Has Internet Access
+
+```{r, echo=FLASE}
+noNAs_2A <- select(noNAs, internetaccess, educ)
+
+noNAs_factor2A <- mutate(noNAs_2A, educ = as.factor(educ),
+                         internetaccess = as.factor(internetaccess))
+
+class_split2A <- initial_split(noNAs_factor2A, prop = 0.90)
+
+class_train2A <- training(class_split2A)
+class_test2A <- testing(class_split2A)
+
+
+forest_class_fit <- rand_forest() |>
+  set_engine("ranger") |>
+  set_mode("classification") |>
+  fit(internetaccess ~ ., data = class_train2A)
+
+class_results2A <- class_test2A
+
+class_results2A$forest_pred <- predict(forest_class_fit, class_test2A)$.pred_class
+
+f2_score <- f1(class_results2A$internetaccess, class_results2A$forest_pred)
+f2_score
+```
+
+This model uses only education level to predict whether someone has internet access. The accuracy of this model was calculated through the f1 score which is 0.66667. This is an okay score, so the model is not too bad, but not great.
+
+#### Random Forest ML Model Using only Income level to Predict Whether Someone Has Internet Access
+
+```{r, echo=FLASE}
+#3rd ML Model Education and Internet Access
+noNAs_3A <- select(noNAs, internetaccess, inc_q)
+
+noNAs_factor3A <- mutate(noNAs_3A, educ = as.factor(inc_q),
+                         internetaccess = as.factor(internetaccess))
+
+class_split3A <- initial_split(noNAs_factor3A, prop = 0.90)
+
+class_train3A <- training(class_split3A)
+class_test3A <- testing(class_split3A)
+
+
+forest_class_fit <- rand_forest() |>
+  set_engine("ranger") |>
+  set_mode("classification") |>
+  fit(internetaccess ~ ., data = class_train3A)
+
+class_results3A <- class_test3A
+
+class_results3A$forest_pred <- predict(forest_class_fit, class_test3A)$.pred_class
+
+f3_score <- f1(class_results3A$internetaccess, class_results3A$forest_pred)
+
+f3_score
+```
+
+This model uses only income level to predict whether someone has internet access. The accuracy of this model was calculated through the f1 score which is 0.4. This is a bad score, so the model is not good at all at predicting whether someone has internet access. Looking at the accuracy of all three model we can see that education level is a better indicator of if someone has internet access.
+
+## **Discussion**
+
+I think the main conclusion that I found is that education and income level are highly correlated to internet access. One limitation with the research I did is that it hard to know if education and income level affect someone having internet access or vice versa. This is because it is also possible that people with internet access have a better opportunity to make more money or increase their education status. However, the answer probably isn't black or white, but more complex. Another things I found out is that as income and education level go up a person is more likely to have internet access. Then through my machine learning models I was able to see that it is more accurate to predict whether someone has internet access using both education and income level or just education level versus just income level. Looking to the future I think it is important that there is more data/research on what is stopping people from accessing the internet. This will help leaders and change makers of the world understand what is stopping people from using the internet. Only once people know the barriers in place can their me change to help people in the future. Internet access is so essential since it is so intertwined into today's world and I believe that everyone deserves to access it.
+
+## **Code and Data Availability**
+
+Data Set: Global Findex 2021 <https://www.worldbank.org/en/publication/globalfindex/Data>
+
+My GitHub repository: <https://github.com/choprarjun/DSRP2023>
+
+## **Acknowledgements**
+
+I would like to acknowledge Mira Bali and Dr. Emma Li for the advice and consonant support for this research project.
+
+I would like to acknowledge Sarah Parker for teaching me all the skills I needed to complete this project.
